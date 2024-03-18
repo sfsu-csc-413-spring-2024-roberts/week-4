@@ -1,0 +1,105 @@
+/**
+ * The Parser class is responsible for parsing input strings according to a specific grammar
+ * and generating an Abstract Syntax Tree (AST) representing the parsed structure.
+ * 
+ * The grammar rules implemented in this parser are defined as follows:
+ * 
+ * X → aX
+ * X → bZX
+ * X → c
+ * X → SE '>' SE
+ * X → SE '>=' SE
+ * X → 'if' E 'then' BLOCK
+ * X → 'from' RANGE STEP BLOCK
+ * 
+ * Z → dZ
+ * Z → d
+ * 
+ * E → SE '>' SE
+ * E → SE '>=' SE
+ * 
+ * S → 'if' E 'then' BLOCK
+ * S → 'from' RANGE STEP BLOCK
+ * 
+ * RANGE → '(' E 'to' E ')'
+ * 
+ * STEP → 'step' E
+ * 
+ * BLOCK → '{' X '}'
+ * 
+ * The parser constructs an AST representing the parsed structure, where different
+ * types of nodes correspond to different elements of the grammar.
+ * 
+ * @author [Your Name]
+ * @version 1.0
+ */
+public class Parser {
+
+    // Lexer instance to tokenize input string
+    private Lexer lexer;
+
+    // Current token being processed
+    private char current;
+
+    /**
+     * Constructs a new Parser object with the given input string.
+     * Initializes the Lexer and sets the current token to the first token.
+     * 
+     * @param inputString The input string to be parsed
+     */
+    public Parser(String inputString) {
+        this.lexer = new Lexer(inputString);
+        this.current = this.lexer.nextToken();
+    }
+
+    /**
+     * Parses the input string according to the defined grammar rules
+     * and generates an Abstract Syntax Tree (AST).
+     * 
+     * @return The root node of the generated AST
+     * @throws Exception if an error occurs during parsing
+     */
+    public AST parse() throws Exception {
+        AST tree = X();
+
+        // Ensure all tokens have been consumed
+        if (this.current != '\0') {
+            syntaxError();
+        }
+
+        return tree;
+    }
+
+    // Other methods (consume, syntaxError, X, Z, E, S, RANGE, STEP, BLOCK) remain unchanged
+
+    /**
+     * Main method to test the Parser class.
+     * 
+     * @param args Command-line arguments (expects a single input string)
+     */
+    public static void main(String[] args) {
+        // Ensure an input string is provided
+        if (args.length != 1) {
+            System.err.println("An input string must be provided.");
+            System.exit(1);
+        }
+
+        try {
+            // Parse the input string
+            Parser parser = new Parser(args[0]);
+            AST ast = parser.parse();
+
+            // Print the AST
+            PrintVisitor visitor = new PrintVisitor();
+            System.out.println("===== AST =====");
+            visitor.visitX(ast);
+        } catch (Exception e) {
+            // Handle parsing errors
+            System.err.println(e.getMessage());
+            System.exit(1);
+        }
+
+        // Print confirmation message
+        System.out.println(String.format("\n\n%s is a valid string for this grammar", args[0]));
+    }
+}
